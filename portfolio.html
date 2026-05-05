@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Portfolio</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+.glow {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+}
+</style>
+
+</head>
+
+<body class="bg-black text-white font-sans p-6">
+
+<button onclick="goBack()" class="mb-6 bg-purple-600 px-4 py-1 rounded glow">
+⬅ Back
+</button>
+
+<div id="box" class="max-w-3xl mx-auto bg-white/10 p-6 rounded-xl glow hidden">
+
+  <div class="text-center">
+    <h2 id="name" class="text-3xl font-bold"></h2>
+    <p id="role" class="text-gray-300"></p>
+    <a id="github" target="_blank" class="text-blue-400"></a>
+  </div>
+
+  <div class="mt-6 text-center">
+    <h3 class="text-purple-400">Skills</h3>
+    <div id="skills" class="flex flex-wrap justify-center gap-2 mt-2"></div>
+  </div>
+
+  <div class="mt-6 text-center">
+    <h3 class="text-blue-400">Projects</h3>
+    <p id="projects" class="text-gray-300"></p>
+  </div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* Firebase Config */
+const firebaseConfig = {
+  apiKey: "AIzaSyCTTFD9F-9sP8YsUx6kwbvmdpHjWHO_i6g",
+  authDomain: "intellifolio-eaaca.firebaseapp.com",
+  projectId: "intellifolio-eaaca",
+  storageBucket: "intellifolio-eaaca.firebasestorage.app",
+  messagingSenderId: "855176167572",
+  appId: "1:855176167572:web:ab558a2154d92397303481"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* Get ID from URL */
+const id = new URLSearchParams(window.location.search).get("id");
+
+/* Back button fix */
+window.goBack = function () {
+  window.location.href = "dashboard.html";
+};
+
+/* Load Portfolio */
+async function load() {
+
+  if (!id) {
+    alert("Invalid link ❌");
+    return;
+  }
+
+  try {
+    const snap = await getDoc(doc(db, "portfolios", id));
+
+    if (snap.exists()) {
+
+      let d = snap.data();
+
+      document.getElementById("name").innerText = d.name || "";
+      document.getElementById("role").innerText = d.role || "";
+      document.getElementById("projects").innerText = d.projects || "";
+
+      let github = document.getElementById("github");
+      github.innerText = d.github || "";
+      github.href = d.github || "#";
+
+      let skillsHTML = "";
+      (d.skills || []).forEach(s => {
+        skillsHTML += `<span class="bg-purple-700 px-3 py-1 rounded">${s}</span>`;
+      });
+
+      document.getElementById("skills").innerHTML = skillsHTML;
+
+      document.getElementById("box").classList.remove("hidden");
+
+    } else {
+      alert("Portfolio not found ❌");
+    }
+
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+}
+
+load();
+
+</script>
+
+</body>
+</html>

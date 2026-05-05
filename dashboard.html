@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard - IntelliFolio</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+.glow {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+}
+.gradient-text {
+  background: linear-gradient(90deg, #a855f7, #3b82f6, #06b6d4);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+</style>
+</head>
+
+<body class="bg-black text-white font-sans flex">
+
+<!-- SIDEBAR -->
+<aside class="w-64 min-h-screen bg-white/10 backdrop-blur-lg p-6 hidden md:block">
+  <h2 class="text-xl font-bold gradient-text mb-6">Dashboard</h2>
+
+  <ul class="space-y-4">
+    <li><a href="quiz.html" class="hover:text-purple-400">🧠 Quiz</a></li>
+    <li onclick="logout()" class="hover:text-red-400 cursor-pointer">🚪 Logout</li>
+  </ul>
+</aside>
+
+<!-- MAIN -->
+<div class="flex-1 p-6">
+
+<!-- HEADER -->
+<header class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold gradient-text">Create Portfolio</h1>
+  <p id="welcomeUser" class="text-gray-400">Welcome 👋</p>
+</header>
+
+<!-- FORM -->
+<div class="bg-white/10 p-6 rounded-xl glow max-w-3xl">
+<form id="portfolioForm" class="space-y-4">
+
+<input id="name" type="text" placeholder="Full Name"
+class="w-full p-2 rounded bg-black/50 border border-gray-700">
+
+<input id="role" type="text" placeholder="Your Role"
+class="w-full p-2 rounded bg-black/50 border border-gray-700">
+
+<input id="skills" type="text" placeholder="Skills (comma separated)"
+class="w-full p-2 rounded bg-black/50 border border-gray-700">
+
+<textarea id="projects" placeholder="Projects Description"
+class="w-full p-2 rounded bg-black/50 border border-gray-700"></textarea>
+
+<input id="github" type="text" placeholder="GitHub Link"
+class="w-full p-2 rounded bg-black/50 border border-gray-700">
+
+<button type="submit"
+class="w-full bg-purple-600 py-2 rounded hover:bg-purple-700 glow">
+Generate Portfolio
+</button>
+
+</form>
+</div>
+
+<!-- MY PORTFOLIOS -->
+<div class="mt-10">
+<h2 class="text-2xl text-purple-400 mb-4">My Portfolios</h2>
+<div id="myPortfolios"></div>
+</div>
+
+</div>
+
+<script type="module">
+
+/* Firebase Imports */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, addDoc, collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* Config */
+const firebaseConfig = {
+  apiKey: "AIzaSyCTTFD9F-9sP8YsUx6kwbvmdpHjWHO_i6g",
+  authDomain: "intellifolio-eaaca.firebaseapp.com",
+  projectId: "intellifolio-eaaca",
+  storageBucket: "intellifolio-eaaca.firebasestorage.app",
+  messagingSenderId: "855176167572",
+  appId: "1:855176167572:web:ab558a2154d92397303481"
+};
+
+/* Init */
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* Auth Check */
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    let username = user.email.split("@")[0];
+    document.getElementById("welcomeUser").innerText =
+      `Welcome, ${username} 👋`;
+
+    loadPortfolios(user.uid);
+  } else {
+    window.location.href = "auth.html";
+  }
+});
+
+/* Logout */
+window.logout = function () {
+  signOut(auth).then(() => {
+    window.location.href = "index.html";
+  });
+};
+
+/* Save Portfolio */
+document.getElementById("portfolioForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  let user = auth.currentUser;
+
+  let name = document.getElementById("name").value;
+  let role = document.getElementById("role").value;
+  let skills = document.getElementById("skills").value.split(",");
+  let projects = document.getElementById("projects").value;
+  let github = document.getElementById("github").value;
+
+  try {
+    let docRef = await addDoc(collection(db, "portfolios"), {
+      userId: user.uid,
+      name,
+      role,
+      skills,
+      projects,
+      github,
+      createdAt: new Date()
+    });
+
+    let link = window.location.origin + "/portfolio.html?id=" + docRef.id;
+
+    alert("✅ Saved!\n\nShare Link:\n" + link);
+
+    loadPortfolios(user.uid);
+
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+/* Load Portfolios (FULL DATA FIXED) */
+async function loadPortfolios(uid) {
+
+  const q = query(collection(db, "portfolios"), where("userId", "==", uid));
+  const snapshot = await getDocs(q);
+
+  let html = "";
+
+  snapshot.forEach((docItem) => {
+
+    let data = docItem.data();
+    let link = window.location.origin + "/portfolio.html?id=" + docItem.id;
+
+    let skillsHTML = "";
+    data.skills.forEach(skill => {
+      skillsHTML += `
+        <span class="bg-purple-700 px-2 py-1 rounded text-sm">
+          ${skill.trim()}
+        </span>
+      `;
+    });
+
+    html += `
+    <div class="bg-white/10 p-5 rounded-lg mb-4 glow">
+
+      <h3 class="text-lg font-bold">${data.name}</h3>
+      <p class="text-gray-400">${data.role}</p>
+
+      <div class="mt-3 flex flex-wrap gap-2">
+        ${skillsHTML}
+      </div>
+
+      <p class="text-gray-300 mt-3">
+        ${data.projects}
+      </p>
+
+      <a href="${data.github}" target="_blank"
+         class="text-blue-400 block mt-2">
+         ${data.github}
+      </a>
+
+      <div class="mt-4 flex gap-4">
+        <a href="${link}" target="_blank" class="text-blue-400">View</a>
+        <button onclick="copyLink('${link}')" class="text-purple-400">Copy</button>
+        <button onclick="deletePortfolio('${docItem.id}')" class="text-red-400">Delete</button>
+      </div>
+
+    </div>
+    `;
+  });
+
+  document.getElementById("myPortfolios").innerHTML = html;
+}
+
+/* Delete */
+window.deletePortfolio = async function (id) {
+  if (!confirm("Delete this portfolio?")) return;
+
+  await deleteDoc(doc(db, "portfolios", id));
+
+  loadPortfolios(auth.currentUser.uid);
+};
+
+/* Copy */
+window.copyLink = function (link) {
+  navigator.clipboard.writeText(link);
+  alert("Link copied 🔗");
+};
+
+</script>
+
+</body>
+</html>

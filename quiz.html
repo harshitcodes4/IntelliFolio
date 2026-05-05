@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz - IntelliFolio</title>
+    <style>
+        .glow {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #a855f7, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-black text-white font-sans p-6">
+    <div class="flex justify-between items-center mb-8">
+        <button onclick="goBack()" 
+            class="bg-purple-600 px-4 py-1 rounded hover:bg-purple-700 glow">
+            ⬅ Dashboard
+        </button>
+        <h1 class="text-2xl gradient-text">Choose Your Quiz 🚀</h1>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div onclick="startQuiz('html')"
+            class="bg-white/10 p-6 rounded-xl text-center cursor-pointer glow hover:scale-105 transition">
+            <h2 class="text-xl mb-2">🌐 HTML Quiz</h2>
+            <p class="text-gray-400">Test your HTML basics</p>
+        </div>
+        <div onclick="startQuiz('css')"
+            class="bg-white/10 p-6 rounded-xl text-center cursor-pointer glow hover:scale-105 transition">
+            <h2 class="text-xl mb-2">🎨 CSS Quiz</h2>
+            <p class="text-gray-400">Check your styling skills</p>
+        </div>
+        <div onclick="startQuiz('tailwind')"
+            class="bg-white/10 p-6 rounded-xl text-center cursor-pointer glow hover:scale-105 transition">
+            <h2 class="text-xl mb-2">🌈 Tailwind Quiz</h2>
+            <p class="text-gray-400">Master utility-first styling</p>
+        </div>
+        <div onclick="startQuiz('js')"
+            class="bg-white/10 p-6 rounded-xl text-center cursor-pointer glow hover:scale-105 transition">
+            <h2 class="text-xl mb-2">⚡ JavaScript Quiz</h2>
+            <p class="text-gray-400">Test your logic & JS knowledge</p>
+        </div>
+    </div>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function goBack() {
+            window.location.href = "dashboard.html";
+        }
+        function startQuiz(type) {
+            window.location.href = type + ".html";
+        }
+    </script>
+</body>
+</html>

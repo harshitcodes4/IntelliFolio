@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Auth - IntelliFolio</title>
+    <style>
+        .glow {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #a855f7, #3b82f6);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-black text-white flex items-center justify-center min-h-screen">
+    <div class="bg-white/10 backdrop-blur-lg p-8 rounded-xl w-80 glow">
+        <h2 id="formTitle" class="text-2xl text-center mb-6 gradient-text">
+            Login
+        </h2>
+        <form id="authForm" class="space-y-4">
+            <input id="nameField" type="text" placeholder="Full Name"
+                class="w-full p-2 rounded bg-black/50 border border-gray-700 hidden">
+            <input id="email" type="email" placeholder="Email"
+                class="w-full p-2 rounded bg-black/50 border border-gray-700" required>
+            <input id="password" type="password" placeholder="Password"
+                class="w-full p-2 rounded bg-black/50 border border-gray-700" required>
+            <button type="submit" class="w-full bg-purple-600 py-2 rounded hover:bg-purple-700 glow">
+                Continue
+            </button>
+        </form>
+        <p class="text-center text-sm mt-4 text-gray-400">
+            <span id="toggleText">Don't have an account?</span>
+            <button onclick="toggleForm()" class="text-blue-400 ml-1">
+                Sign Up
+            </button>
+        </p>
+    </div>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTTFD9F-9sP8YsUx6kwbvmdpHjWHO_i6g",
+            authDomain: "intellifolio-eaaca.firebaseapp.com",
+            projectId: "intellifolio-eaaca",
+            storageBucket: "intellifolio-eaaca.firebasestorage.app",
+            messagingSenderId: "855176167572",
+            appId: "1:855176167572:web:ab558a2154d92397303481"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        let isLogin = true;
+        window.toggleForm = function () {
+            isLogin = !isLogin;
+            document.getElementById("formTitle").innerText =
+                isLogin ? "Login" : "Sign Up";
+            document.getElementById("toggleText").innerText =
+                isLogin
+                    ? "Don't have an account?"
+                    : "Already have an account?";
+
+            document.getElementById("nameField").classList.toggle("hidden");
+        };
+        document.getElementById("authForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            if (isLogin) {
+                signInWithEmailAndPassword(auth, email, password)
+                    .then(() => {
+                        alert("Login Successful 🚀");
+                        window.location.href = "dashboard.html";
+                    })
+                    .catch((error) => {
+                        alert(error.message);
+                    });
+            } else {
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then(() => {
+                        alert("Signup Successful 🚀");
+                        window.location.href = "dashboard.html";
+                    })
+                    .catch((error) => {
+                        alert(error.message);
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
