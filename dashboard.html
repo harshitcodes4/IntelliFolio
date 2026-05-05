@@ -97,7 +97,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 /* 🔥 AUTO BASE PATH (IMPORTANT FIX) */
-const basePath = window.location.pathname.replace("dashboard.html", "");
+let basePath = "/IntelliFolio"; // your repo name
+
+let link = window.location.origin + basePath + "/portfolio.html?id=" + docRef.id;
 
 /* Auth Check */
 onAuthStateChanged(auth, (user) => {
@@ -167,7 +169,9 @@ async function loadPortfolios(uid) {
     let data = docItem.data();
 
     /* 🔥 FIXED VIEW LINK */
-    let link = window.location.origin + basePath + "portfolio.html?id=" + docItem.id;
+    let basePath = "/IntelliFolio"; // your repo name
+
+    let link = window.location.origin + basePath + "/portfolio.html?id=" + docRef.id;
 
     let skillsHTML = "";
     data.skills.forEach(skill => {
