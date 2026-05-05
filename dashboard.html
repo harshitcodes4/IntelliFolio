@@ -65,13 +65,13 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        let basePath = "/IntelliFolio";
-        let link = window.location.origin + basePath + "/portfolio.html?id=" + docRef.id;
+        const basePath = "/IntelliFolio";
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 let username = user.email.split("@")[0];
                 document.getElementById("welcomeUser").innerText =
                     `Welcome, ${username} 👋`;
+
                 loadPortfolios(user.uid);
             } else {
                 window.location.href = "auth.html";
@@ -100,7 +100,7 @@
                     github,
                     createdAt: new Date()
                 });
-                let link = window.location.origin + basePath + "portfolio.html?id=" + docRef.id;
+                let link = window.location.origin + basePath + "/portfolio.html?id=" + docRef.id;
                 alert("✅ Saved!\n\nShare Link:\n" + link);
                 loadPortfolios(user.uid);
             } catch (err) {
@@ -113,8 +113,7 @@
             let html = "";
             snapshot.forEach((docItem) => {
                 let data = docItem.data();
-                let basePath = "/IntelliFolio";
-                let link = window.location.origin + basePath + "/portfolio.html?id=" + docRef.id;
+                let link = window.location.origin + basePath + "/portfolio.html?id=" + docItem.id;
                 let skillsHTML = "";
                 data.skills.forEach(skill => {
                     skillsHTML += `
@@ -124,25 +123,25 @@
                     `;
                 });
                 html += `
-                    <div class="bg-white/10 p-5 rounded-lg mb-4 glow">
-                        <h3 class="text-lg font-bold">${data.name}</h3>
-                        <p class="text-gray-400">${data.role}</p>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            ${skillsHTML}
-                        </div>  
-                        <p class="text-gray-300 mt-3">
-                            ${data.projects}
-                        </p>
-                        <a href="${data.github}" target="_blank"
-                            class="text-blue-400 block mt-2">
-                                ${data.github}
-                        </a>
-                        <div class="mt-4 flex gap-4">
-                            <a href="${link}" target="_blank" class="text-blue-400">View</a>
-                            <button onclick="copyLink('${link}')" class="text-purple-400">Copy</button>
-                            <button onclick="deletePortfolio('${docItem.id}')" class="text-red-400">Delete</button>
-                        </div>
+                <div class="bg-white/10 p-5 rounded-lg mb-4 glow">
+                    <h3 class="text-lg font-bold">${data.name}</h3>
+                    <p class="text-gray-400">${data.role}</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        ${skillsHTML}
                     </div>
+                    <p class="text-gray-300 mt-3">
+                        ${data.projects}
+                    </p>
+                    <a href="${data.github}" target="_blank"
+                    class="text-blue-400 block mt-2">
+                    ${data.github}
+                    </a>
+                    <div class="mt-4 flex gap-4">
+                        <a href="${link}" target="_blank" class="text-blue-400">View</a>
+                        <button onclick="copyLink('${link}')" class="text-purple-400">Copy</button>
+                        <button onclick="deletePortfolio('${docItem.id}')" class="text-red-400">Delete</button>
+                    </div>
+                </div>
                 `;
             });
             document.getElementById("myPortfolios").innerHTML = html;
