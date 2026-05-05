@@ -96,6 +96,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+/* 🔥 AUTO BASE PATH (IMPORTANT FIX) */
+const basePath = window.location.pathname.replace("dashboard.html", "");
+
 /* Auth Check */
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -116,7 +119,7 @@ window.logout = function () {
   });
 };
 
-/* Save Portfolio */
+/* SAVE PORTFOLIO */
 document.getElementById("portfolioForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -139,7 +142,8 @@ document.getElementById("portfolioForm").addEventListener("submit", async (e) =>
       createdAt: new Date()
     });
 
-    let link = window.location.origin + "/IntelliFolio/portfolio.html?id=" + docRef.id;
+    /* 🔥 FIXED SHAREABLE LINK */
+    let link = window.location.origin + basePath + "portfolio.html?id=" + docRef.id;
 
     alert("✅ Saved!\n\nShare Link:\n" + link);
 
@@ -150,7 +154,7 @@ document.getElementById("portfolioForm").addEventListener("submit", async (e) =>
   }
 });
 
-/* Load Portfolios (FULL DATA FIXED) */
+/* LOAD PORTFOLIOS */
 async function loadPortfolios(uid) {
 
   const q = query(collection(db, "portfolios"), where("userId", "==", uid));
@@ -161,7 +165,9 @@ async function loadPortfolios(uid) {
   snapshot.forEach((docItem) => {
 
     let data = docItem.data();
-    let link = window.location.origin + "/portfolio.html?id=" + docItem.id;
+
+    /* 🔥 FIXED VIEW LINK */
+    let link = window.location.origin + basePath + "portfolio.html?id=" + docItem.id;
 
     let skillsHTML = "";
     data.skills.forEach(skill => {
@@ -204,16 +210,15 @@ async function loadPortfolios(uid) {
   document.getElementById("myPortfolios").innerHTML = html;
 }
 
-/* Delete */
+/* DELETE */
 window.deletePortfolio = async function (id) {
   if (!confirm("Delete this portfolio?")) return;
 
   await deleteDoc(doc(db, "portfolios", id));
-
   loadPortfolios(auth.currentUser.uid);
 };
 
-/* Copy */
+/* COPY */
 window.copyLink = function (link) {
   navigator.clipboard.writeText(link);
   alert("Link copied 🔗");
